@@ -22,35 +22,15 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
+      - name: Build and upload Astro site
+        uses: withastro/action@v4
         with:
-          version: 10
-
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: pnpm
-
-      - name: Configure Pages
-        uses: actions/configure-pages@v5
-
-      - name: Install dependencies
-        run: pnpm install --no-frozen-lockfile
-
-      - name: Build
-        run: pnpm build
+          package-manager: pnpm@10
         env:
           PUBLIC_SIGNUP_ENDPOINT: ${{ vars.PUBLIC_SIGNUP_ENDPOINT }}
           PUBLIC_SIGNUP_SOURCE: ${{ vars.PUBLIC_SIGNUP_SOURCE || 'usacc-interest-list' }}
           SITE_URL: ${{ vars.SITE_URL || format('https://{0}.github.io', github.repository_owner) }}
           BASE_PATH: ${{ vars.BASE_PATH || format('/{0}', github.event.repository.name) }}
-
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: ./dist
 
   deploy:
     environment:
