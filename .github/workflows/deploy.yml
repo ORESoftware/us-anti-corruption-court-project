@@ -20,12 +20,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Build and upload Astro site
-        uses: withastro/action@v4
-        with:
-          package-manager: pnpm@10
+        uses: withastro/action@v6
         env:
           PUBLIC_SIGNUP_ENDPOINT: ${{ vars.PUBLIC_SIGNUP_ENDPOINT }}
           PUBLIC_SIGNUP_SOURCE: ${{ vars.PUBLIC_SIGNUP_SOURCE || 'usacc-interest-list' }}
@@ -41,4 +39,4 @@ jobs:
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5
