@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-labelledby="title desc">
+  <title>USACC</title>
+  <desc>Stylized courthouse mark for the US Anti-Corruption Court project.</desc>
+  <defs>
+    <linearGradient id="frame" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0f172a" />
+      <stop offset="100%" stop-color="#1d4ed8" />
+    </linearGradient>
+    <linearGradient id="accent" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#f59e0b" />
+      <stop offset="100%" stop-color="#d97706" />
+    </linearGradient>
+  </defs>
+  <rect width="128" height="128" rx="28" fill="#f6efe3" />
+  <path d="M19 37h90" stroke="url(#accent)" stroke-width="8" stroke-linecap="round" />
+  <path d="M34 37 64 19l30 18" fill="none" stroke="url(#frame)" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" />
+  <path d="M32 47v37M50 47v37M78 47v37M96 47v37" stroke="url(#frame)" stroke-width="8" stroke-linecap="round" />
+  <path d="M24 94h80" stroke="url(#accent)" stroke-width="10" stroke-linecap="round" />
+  <path d="M18 106h92" stroke="#0f172a" stroke-width="8" stroke-linecap="round" opacity=".85" />
+</svg>

@@ -1,0 +1,165 @@
+---
+import { caseStages, historicLessons, roadmap } from '../data/siteContent';
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+const corruptionDefinition = [
+  'Entrusted power: a role exists to serve the public, shareholders, beneficiaries, or another protected group rather than the decision-maker personally.',
+  'Private benefit: the gain can be money, status, access, career insulation, favors, or delayed compensation rather than a plainly illegal cash payment.',
+  'Diffuse harm: the practical victim is a population, which means ordinary standing and conventional prosecution often fail to line up.',
+];
+
+const safeguards = [
+  'Structured case scoping around a defendant, conduct, and time-window triple',
+  'Evidence floors before a case can gather momentum',
+  'Identity verification and anti-bot controls for supporters',
+  'Randomized stage-by-stage reviewer assignment',
+  'Escrow rules that constrain how case funds are used',
+  'Supermajority decision rules instead of bare-majority judgment',
+];
+
+const usModel = [
+  'Sliding filing tiers that let an initial plaintiff choose the signature and funding target up front',
+  'Per-case escrow and clearly defined refund, cost, and reserve logic',
+  'A standing pool of at least 1,000 qualified judges or legal reviewers',
+  'A 15-juror trial panel with 12 of 15 required to convict',
+  'Remedies centered on damages, disgorgement, public findings, referrals, and role ineligibility rather than assumed criminal sentencing power',
+];
+
+const homeHref = import.meta.env.BASE_URL;
+---
+
+<BaseLayout
+  title="USACC Framework"
+  description="A public brief translating the supplied anti-corruption court whitepaper and draft plan into a concise framework page for the USACC project."
+>
+  <header class="subpage-hero">
+    <div class="container">
+      <a class="back-link" href={homeHref}>Back to home</a>
+      <p class="section-kicker">Framework Brief</p>
+      <h1>A working public brief for the US Anti-Corruption Court concept.</h1>
+      <p class="lede narrow">
+        This page condenses the provided whitepaper and draft plan into a clearer public-facing
+        narrative. It preserves the main design logic while staying explicit that the project is
+        still exploratory and nonprofit-oriented.
+      </p>
+    </div>
+  </header>
+
+  <main>
+    <section class="section">
+      <div class="container article-shell">
+        <article class="article-card">
+          <p class="section-kicker">Why this exists</p>
+          <h2>Corruption often falls into a standing gap.</h2>
+          <p>
+            The materials behind USACC argue that many serious corruption patterns are obvious,
+            harmful, and self-dealing without fitting neatly into today’s litigation pathways.
+            Public harm is spread across taxpayers, consumers, ratepayers, pension beneficiaries,
+            or voters. The public is the victim, but the public rarely appears as a plaintiff in
+            a form conventional systems can process cleanly.
+          </p>
+          <p>
+            The concept therefore explores a parallel intake, review, and adjudication structure
+            that can hear higher-signal claims without depending on political permission or a
+            single directly injured claimant with large individual damages.
+          </p>
+        </article>
+
+        <article class="article-card">
+          <p class="section-kicker">Scope</p>
+          <h2>What counts as corruption in this model.</h2>
+          <ul class="article-list">
+            {corruptionDefinition.map((item) => (
+              <li>{item}</li>
+            ))}
+          </ul>
+          <p>
+            The draft also explicitly includes conduct that is blatant and corrosive even when it
+            is structured to stay technically inside current law. That includes regulatory
+            capture, revolving-door rewards, procurement steering, pension self-dealing,
+            disclosure laundering, and insider dealing by public servants.
+          </p>
+        </article>
+
+        <article class="article-card">
+          <p class="section-kicker">Case Flow</p>
+          <h2>The four-stage architecture.</h2>
+          <div class="article-stage-grid">
+            {caseStages.map((stage) => (
+              <section class="article-stage">
+                <p class="card-kicker">{stage.eyebrow}</p>
+                <h3>{stage.title}</h3>
+                <p>{stage.body}</p>
+                <ul class="article-list">
+                  {stage.bullets.map((bullet) => (
+                    <li>{bullet}</li>
+                  ))}
+                </ul>
+              </section>
+            ))}
+          </div>
+        </article>
+
+        <article class="article-card">
+          <p class="section-kicker">Safeguards</p>
+          <h2>How the proposal tries not to become a political weapon.</h2>
+          <ul class="article-list">
+            {safeguards.map((item) => (
+              <li>{item}</li>
+            ))}
+          </ul>
+          <p>
+            The recurring design principle is that public participation is valuable only when it
+            is paired with friction, verification, and independent review. The project’s theory
+            of legitimacy depends as much on what the system rejects as what it hears.
+          </p>
+        </article>
+
+        <article class="article-card">
+          <p class="section-kicker">U.S. Draft</p>
+          <h2>What the newer anti-corruption court plan adds.</h2>
+          <ul class="article-list">
+            {usModel.map((item) => (
+              <li>{item}</li>
+            ))}
+          </ul>
+          <p>
+            This draft makes the adjudication mechanics more concrete. Instead of gesturing
+            toward abstract review, it sketches a large standing judge pool, a 15-person panel,
+            explicit conviction math, escrow-backed case funding, and a remedy model that stays
+            realistic about what a nonprofit or court-adjacent body could actually enforce.
+          </p>
+        </article>
+
+        <article class="article-card">
+          <p class="section-kicker">Historical lessons</p>
+          <h2>What earlier anti-corruption bodies teach.</h2>
+          <div class="card-grid two-up">
+            {historicLessons.map((lesson) => (
+              <section class="mini-card">
+                <h3>{lesson.title}</h3>
+                <p>{lesson.body}</p>
+              </section>
+            ))}
+          </div>
+          <p>
+            The combined lesson is straightforward: independence, scope discipline, and
+            distributed decision-making matter more than heroic personalities. Anti-corruption
+            bodies that depend on political goodwill usually lose that goodwill as soon as they
+            start to matter.
+          </p>
+        </article>
+
+        <article class="article-card">
+          <p class="section-kicker">Next steps</p>
+          <h2>What this project needs before it becomes more than a concept note.</h2>
+          <ol class="article-list article-list-numbered">
+            {roadmap.map((item) => (
+              <li>{item}</li>
+            ))}
+          </ol>
+        </article>
+      </div>
+    </section>
+  </main>
+</BaseLayout>

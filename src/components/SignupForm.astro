@@ -1,0 +1,117 @@
+---
+const endpoint = import.meta.env.PUBLIC_SIGNUP_ENDPOINT || '';
+const source = import.meta.env.PUBLIC_SIGNUP_SOURCE || 'usacc-interest-list';
+---
+
+<form class="signup-card" data-signup-form data-endpoint={endpoint} data-source={source}>
+  <div class="signup-copy">
+    <p class="section-kicker">Stay Connected</p>
+    <h3>Join the USACC interest list</h3>
+    <p>
+      Add your email to hear when the project publishes new drafts, opens collaborator circles,
+      or launches public feedback rounds.
+    </p>
+  </div>
+
+  <label class="field">
+    <span>Email address</span>
+    <input
+      type="email"
+      name="email"
+      inputmode="email"
+      autocomplete="email"
+      placeholder="you@example.org"
+      required
+    />
+  </label>
+
+  <label class="field honeypot-field" aria-hidden="true">
+    <span>Company</span>
+    <input type="text" name="company" tabindex="-1" autocomplete="off" />
+  </label>
+
+  <button class="button button-primary button-block" type="submit" data-submit-button>
+    Express Interest
+  </button>
+
+  <p class="signup-feedback" data-signup-feedback>
+    We only use your email for project updates. The form is static-site friendly and posts
+    directly to a configured Google Apps Script endpoint.
+  </p>
+</form>
+
+<script is:inline>
+  const forms = document.querySelectorAll('[data-signup-form]');
+
+  forms.forEach((form) => {
+    const feedback = form.querySelector('[data-signup-feedback]');
+    const submitButton = form.querySelector('[data-submit-button]');
+
+    const setFeedback = (message, state = 'neutral') => {
+      if (!feedback) return;
+      feedback.textContent = message;
+      feedback.dataset.state = state;
+    };
+
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+
+      const endpoint = form.dataset.endpoint;
+      const source = form.dataset.source || 'usacc-interest-list';
+      const emailInput = form.querySelector('input[name="email"]');
+      const honeypot = form.querySelector('input[name="company"]');
+
+      if (!emailInput) {
+        setFeedback('The form is missing an email field.', 'error');
+        return;
+      }
+
+      if (honeypot && honeypot.value) {
+        form.reset();
+        setFeedback('Thanks. Your interest was recorded.', 'success');
+        return;
+      }
+
+      if (!endpoint) {
+        setFeedback(
+          'Signup is not configured yet. Add PUBLIC_SIGNUP_ENDPOINT before publishing.',
+          'error'
+        );
+        return;
+      }
+
+      try {
+        if (submitButton) {
+          submitButton.disabled = true;
+          submitButton.textContent = 'Submitting...';
+        }
+
+        setFeedback('Sending your request...', 'pending');
+
+        const payload = new URLSearchParams({
+          email: emailInput.value.trim(),
+          source,
+          page: window.location.pathname,
+          submittedAt: new Date().toISOString(),
+          userAgent: navigator.userAgent,
+        });
+
+        await fetch(endpoint, {
+          method: 'POST',
+          mode: 'no-cors',
+          body: payload,
+        });
+
+        form.reset();
+        setFeedback('Thanks. We will keep you posted as USACC develops.', 'success');
+      } catch (error) {
+        setFeedback('The signup request did not go through. Please try again.', 'error');
+      } finally {
+        if (submitButton) {
+          submitButton.disabled = false;
+          submitButton.textContent = 'Express Interest';
+        }
+      }
+    });
+  });
+</script>

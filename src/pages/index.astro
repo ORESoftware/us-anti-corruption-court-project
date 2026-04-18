@@ -1,0 +1,319 @@
+---
+import SignupForm from '../components/SignupForm.astro';
+import {
+  caseStages,
+  designPillars,
+  historicLessons,
+  pilotFeatures,
+  platformTracks,
+} from '../data/siteContent';
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+const navItems = [
+  { href: '#mission', label: 'Mission Statement' },
+  { href: '#whoarewe', label: 'Who Are We' },
+  { href: '#design', label: 'Design' },
+  { href: '#details', label: 'Details' },
+  { href: '#platform', label: 'Platform' },
+  { href: '#support', label: 'Support' },
+];
+
+const heroStats = [
+  { label: '15-person panel', value: 'Trial draft' },
+  { label: '1,000+ judge pool', value: 'Rotation model' },
+  { label: '80% threshold', value: 'Supermajority' },
+];
+
+const whoWeAre = [
+  {
+    title: 'A public-interest concept, not a launched court',
+    body:
+      'USACC is a nonprofit-oriented civic design project built to test whether corruption cases with diffuse public harm can be screened, funded, and reviewed more credibly than today’s default pathways allow.',
+  },
+  {
+    title: 'Grounded in the UACS whitepaper',
+    body:
+      'The site draws from the broader Universal Anti-Corruption Court System proposal and adapts it into a U.S.-focused public brief, emphasizing practicality, safeguards, and staged implementation.',
+  },
+  {
+    title: 'Designed for coalition-building',
+    body:
+      'The current phase is about attracting legal scholars, governance experts, technologists, nonprofit operators, and early supporters who want to pressure-test the model in public.',
+  },
+];
+
+const homeHref = import.meta.env.BASE_URL;
+const frameworkHref = `${import.meta.env.BASE_URL}framework/`;
+---
+
+<BaseLayout
+  title="USACC | US Anti-Corruption Court"
+  description="USACC is a nonprofit civic project exploring a U.S.-focused anti-corruption court model with strong safeguards, public participation, and transparent institutional design."
+>
+  <header class="topbar">
+    <div class="container topbar-inner">
+      <a class="brand" href={homeHref}>
+        <span class="brand-mark">USACC</span>
+        <span class="brand-text">US Anti-Corruption Court</span>
+      </a>
+
+      <nav class="nav-scroll" aria-label="Primary">
+        {navItems.map((item) => (
+          <a class="nav-pill" href={item.href}>{item.label}</a>
+        ))}
+      </nav>
+
+      <a class="button button-primary button-small topbar-cta" href="#support">Express Interest</a>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero section">
+      <div class="container hero-grid">
+        <div class="hero-copy">
+          <p class="eyebrow">A nonprofit civic design initiative</p>
+          <h1>Building a serious public-interest path for corruption cases that ordinary systems leave behind.</h1>
+          <p class="lede">
+            USACC is a U.S.-focused proposal for a safeguarded anti-corruption court model. It
+            explores how citizen-supported filings, randomized review, clear case scoping, and
+            transparent process design could make credible corruption claims harder to ignore and
+            harder to weaponize.
+          </p>
+
+          <div class="hero-actions">
+            <a class="button button-primary" href="#support">Join the interest list</a>
+            <a class="button button-secondary" href={frameworkHref}>Read the framework</a>
+          </div>
+
+          <div class="stat-row">
+            {heroStats.map((stat) => (
+              <div class="stat-card">
+                <strong>{stat.label}</strong>
+                <span>{stat.value}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <aside class="hero-panel">
+          <p class="section-kicker">Current working thesis</p>
+          <h2>
+            Corruption often harms the public diffusely, which means no single plaintiff has the
+            leverage to force review.
+          </h2>
+          <p>
+            USACC is aimed at that gap. The concept combines public initiation, structured
+            evidence, anti-gaming filters, randomized judicial review, and an escrow-backed
+            funding design so stronger cases can be heard without turning the platform into a
+            chaos machine.
+          </p>
+          <div class="hero-panel-notes">
+            <span>Mission-led</span>
+            <span>Static-site deployable</span>
+            <span>Public brief + signups today</span>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <section class="section" id="mission">
+      <div class="container">
+        <div class="section-heading">
+          <p class="section-kicker">Mission Statement</p>
+          <h2>Make credible corruption claims impossible to ignore without making public accusation easy to game.</h2>
+          <p class="section-intro">
+            The project’s mission is to design a court-adjacent public-interest mechanism for
+            corruption cases that fall between criminal prosecution, civil standing, and political
+            incentives. The aim is not spectacle. The aim is disciplined accountability.
+          </p>
+        </div>
+
+        <div class="quote-card">
+          <p>
+            USACC imagines a system where entrusted power, private benefit, and diffuse public
+            harm can be evaluated through a credible process that is accessible enough to be used
+            and rigorous enough to be trusted.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="whoarewe">
+      <div class="container">
+        <div class="section-heading split">
+          <div>
+            <p class="section-kicker">Who Are We</p>
+            <h2>An early-stage coalition around a difficult institutional problem.</h2>
+          </div>
+          <p class="section-intro">
+            This website presents the concept in a form that supporters, critics, advisors, and
+            potential nonprofit partners can react to. It is intentionally clear about being a
+            proposal under development rather than a functioning judicial body.
+          </p>
+        </div>
+
+        <div class="card-grid thirds">
+          {whoWeAre.map((item) => (
+            <article class="info-card">
+              <h3>{item.title}</h3>
+              <p>{item.body}</p>
+            </article>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="design">
+      <div class="container">
+        <div class="section-heading split">
+          <div>
+            <p class="section-kicker">Design</p>
+            <h2>Five constraints shape the concept from the start.</h2>
+          </div>
+          <p class="section-intro">
+            The whitepaper and draft plan both treat safeguards as first-order design work. The
+            question is not only how to hear more corruption cases, but how to do it without
+            creating a new tool for abuse.
+          </p>
+        </div>
+
+        <div class="card-grid">
+          {designPillars.map((pillar) => (
+            <article class="info-card">
+              <h3>{pillar.title}</h3>
+              <p>{pillar.body}</p>
+            </article>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="details">
+      <div class="container">
+        <div class="section-heading split">
+          <div>
+            <p class="section-kicker">Details</p>
+            <h2>A four-stage model with a more specific U.S. draft layered on top.</h2>
+          </div>
+          <p class="section-intro">
+            The supplied materials describe both a general court architecture and a U.S.-focused
+            plan with tighter trial rules, escrow mechanics, and juror-pool design. The website
+            reflects both by keeping the high-level case flow visible while highlighting the newer
+            pilot mechanics.
+          </p>
+        </div>
+
+        <div class="timeline-grid">
+          {caseStages.map((stage) => (
+            <article class="timeline-card">
+              <p class="card-kicker">{stage.eyebrow}</p>
+              <h3>{stage.title}</h3>
+              <p>{stage.body}</p>
+              <ul>
+                {stage.bullets.map((bullet) => (
+                  <li>{bullet}</li>
+                ))}
+              </ul>
+            </article>
+          ))}
+        </div>
+
+        <div class="section-heading compact">
+          <p class="section-kicker">Current pilot features</p>
+          <h3>What the latest draft makes unusually concrete.</h3>
+        </div>
+
+        <div class="card-grid thirds">
+          {pilotFeatures.map((feature) => (
+            <article class="info-card">
+              <h3>{feature.title}</h3>
+              <p>{feature.body}</p>
+            </article>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="platform">
+      <div class="container">
+        <div class="section-heading split">
+          <div>
+            <p class="section-kicker">Platform</p>
+            <h2>Part website, part civic infrastructure roadmap.</h2>
+          </div>
+          <p class="section-intro">
+            The launch site is intentionally simple and static so it can live on GitHub Pages,
+            gather early interest, and communicate the theory of change. The long-term platform
+            vision is much larger.
+          </p>
+        </div>
+
+        <div class="card-grid">
+          {platformTracks.map((track) => (
+            <article class="info-card">
+              <h3>{track.title}</h3>
+              <p>{track.body}</p>
+            </article>
+          ))}
+        </div>
+
+        <div class="insight-strip">
+          {historicLessons.map((lesson) => (
+            <article class="insight-card">
+              <h3>{lesson.title}</h3>
+              <p>{lesson.body}</p>
+            </article>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <section class="section support-section" id="support">
+      <div class="container support-grid">
+        <div class="support-copy">
+          <p class="section-kicker">Support</p>
+          <h2>Help shape the next draft.</h2>
+          <p class="section-intro">
+            USACC is looking for people who want to follow the concept, pressure-test the legal
+            design, or help develop a credible nonprofit and technical path forward. The simplest
+            next step is joining the update list.
+          </p>
+
+          <div class="support-points">
+            <div class="support-point">
+              <strong>For legal and policy experts</strong>
+              <span>Track updates as the jurisdiction, remedy, and governance questions are refined.</span>
+            </div>
+            <div class="support-point">
+              <strong>For technologists and operators</strong>
+              <span>Follow the platform design for intake, review, auditability, and public trust.</span>
+            </div>
+            <div class="support-point">
+              <strong>For early supporters</strong>
+              <span>Stay close to the project as it turns from concept note into public initiative.</span>
+            </div>
+          </div>
+        </div>
+
+        <SignupForm />
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+      <div class="container footer-inner">
+        <div>
+          <strong>USACC</strong>
+        <p>
+          A public-interest concept for corruption accountability in the United States.
+        </p>
+        </div>
+        <div>
+          <a href={frameworkHref}>Framework</a>
+          <span class="footer-separator">/</span>
+          <a href="#support">Join updates</a>
+        </div>
+      <p class="footer-note">This website describes a proposal under development and does not offer legal advice.</p>
+    </div>
+  </footer>
+</BaseLayout>
