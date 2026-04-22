@@ -1,0 +1,571 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+const homeHref = import.meta.env.BASE_URL;
+const basePath = import.meta.env.BASE_URL.endsWith('/')
+  ? import.meta.env.BASE_URL
+  : `${import.meta.env.BASE_URL}/`;
+const frameworkHref = `${basePath}framework/`;
+
+const tupleRows = [
+  {
+    component: 'States',
+    symbol: 'S',
+    meaning:
+      'Case stage, evidence strength, corroboration depth, conflict risk, funding status, and public-harm profile.',
+  },
+  {
+    component: 'Actions',
+    symbol: 'A',
+    meaning:
+      'Request evidence, verify identity, assign reviewers, escalate, audit, release escrow, seal records, or close the matter.',
+  },
+  {
+    component: 'Transitions',
+    symbol: 'T(s\' | s, a)',
+    meaning:
+      'How cases move after an action: new evidence arrives, contradictions appear, conflicts are found, or support signals change.',
+  },
+  {
+    component: 'Rewards / Costs',
+    symbol: 'R(s, a)',
+    meaning:
+      'Catch credible corruption, avoid false accusations, preserve due process, reduce delay, and limit manipulation or capture.',
+  },
+  {
+    component: 'Observations',
+    symbol: 'Omega',
+    meaning:
+      'What the system can actually see at decision time: filings, signatures, documents, timing patterns, reviewer notes, and external corroboration.',
+  },
+  {
+    component: 'Observation Model',
+    symbol: 'O(o | s\', a)',
+    meaning:
+      'How noisy signals map onto hidden reality: a clean filing can still be weak, and a messy filing can still be true.',
+  },
+];
+
+const signals = [
+  {
+    title: 'What the court can observe',
+    body:
+      'Structured allegations, named parties, benefit flow, time window, identity checks, document metadata, supporter patterns, conflict disclosures, and reviewer output.',
+  },
+  {
+    title: 'What stays hidden',
+    body:
+      'Whether collusion actually occurred, whether a witness is reliable, whether a filing campaign is coordinated, whether key evidence is missing, and whether a response is honest or strategic delay.',
+  },
+  {
+    title: 'Belief state',
+    body:
+      'A running probability distribution over hidden conditions such as credible corruption, manipulation risk, legal viability, and expected public-interest value.',
+  },
+  {
+    title: 'Policy',
+    body:
+      'The controller is the policy: a mapping from the current state or belief state to the next action, with thresholds, review rules, and funding gates made explicit.',
+  },
+];
+
+const stageControls = [
+  {
+    eyebrow: 'Stage 1',
+    title: 'Submission and signal formation',
+    visible:
+      'Complaint structure, named actors, claimed benefit flow, harmed group, conduct window, and initial identity checks.',
+    hidden:
+      'Whether the allegation is genuine, mistaken, retaliatory, coordinated, or too underspecified to mature.',
+    control:
+      'Set evidence floors, merge duplicates, flag brigading, request missing detail, and decide whether the matter can gather momentum.',
+  },
+  {
+    eyebrow: 'Stage 2',
+    title: 'Multi-layer validation',
+    visible:
+      'Normalized evidence, verified participants, duplicate detection, and conflict-screening results.',
+    hidden:
+      'Whether the visible support is organic, whether corroboration is independent, and whether crucial evidence has been omitted.',
+    control:
+      'Tighten verification, hold for audit, adjust disclosure, and decide whether the case record is stable enough for admission review.',
+  },
+  {
+    eyebrow: 'Stage 3',
+    title: 'Judicial admission review',
+    visible:
+      'Matured case record, reviewer notes, conflict checks, evidentiary map, and manipulation alerts.',
+    hidden:
+      'Whether the apparent record would survive stronger adversarial scrutiny and whether hidden conflicts still contaminate judgment.',
+    control:
+      'Assign fresh reviewers, raise or lower scrutiny, reject, admit, or request targeted supplementation before moving forward.',
+  },
+  {
+    eyebrow: 'Stage 4',
+    title: 'Trial and remedies',
+    visible:
+      'Developed record, funded prosecution and defense posture, panel composition, and remedy options.',
+    hidden:
+      'Residual uncertainty about intent, collusive coordination, damages, deterrent effect, and likely compliance with remedies.',
+    control:
+      'Release escrow according to rules, manage panel assignment, preserve process integrity, and calibrate remedies to what the body can actually enforce.',
+  },
+];
+
+const applications = [
+  {
+    title: 'Intake triage model',
+    body:
+      'Estimate which filings deserve immediate attention, which need more evidence, and which should be closed before they become noise.',
+  },
+  {
+    title: 'Reviewer assignment engine',
+    body:
+      'Balance expertise, conflict risk, reviewer load, and capture resistance when selecting fresh panels at each stage.',
+  },
+  {
+    title: 'Manipulation detector',
+    body:
+      'Monitor abrupt shifts in support, timing anomalies, recycled evidence, identity irregularities, and suspiciously coordinated filings.',
+  },
+  {
+    title: 'Escrow and funding controller',
+    body:
+      'Release case-level funds only when belief in legal viability, record maturity, and process integrity crosses explicit thresholds.',
+  },
+  {
+    title: 'Publication and sealing policy',
+    body:
+      'Model when more visibility strengthens legitimacy and when it increases bandwagon effects, retaliation, or strategic gaming.',
+  },
+  {
+    title: 'Pilot dashboard',
+    body:
+      'Track false-positive risk, time-to-resolution, reviewer disagreement, appeal-like reversals, and where cases stall in the pipeline.',
+  },
+];
+
+const comparisonRows = [
+  {
+    question: 'What case state are we in right now?',
+    mdp: 'Often good enough if the workflow variables are explicit.',
+    pomdp: 'Still useful, but not always necessary.',
+  },
+  {
+    question: 'How should we allocate reviewers, audits, and budget?',
+    mdp: 'Useful for scheduling, routing, and queue management.',
+    pomdp: 'Better when hidden manipulation or hidden quality affects routing.',
+  },
+  {
+    question: 'Is this allegation actually credible or strategically engineered?',
+    mdp: 'Too optimistic because it assumes the truth is visible.',
+    pomdp: 'Much better because credibility and manipulation are latent variables.',
+  },
+  {
+    question: 'Should we escalate, pause, request more evidence, or close?',
+    mdp: 'Helpful for rough policy design.',
+    pomdp: 'Best for real operation because the next move depends on uncertain hidden state.',
+  },
+  {
+    question: 'Can the model itself decide guilt?',
+    mdp: 'No.',
+    pomdp: 'Also no. It should guide process control, not replace adjudication.',
+  },
+];
+---
+
+<BaseLayout
+  title="USACC | MDP and POMDP Brief"
+  description="A working brief on how Markov Decision Processes and Partially Observable Markov Decision Processes can help model, run, and control a corruption court process."
+>
+  <header class="subpage-hero">
+    <div class="container">
+      <a class="back-link" href={homeHref}>Back to home</a>
+      <p class="section-kicker">Operations Model</p>
+      <h1>How MDPs and POMDPs can help model and control a corruption court.</h1>
+      <p class="lede narrow">
+        USACC already describes a staged system with intake, validation, admission review, and
+        trial-like remedies. That makes it a sequential decision process. The reason to bring in
+        MDPs and POMDPs is not to make the project more abstract. It is to make the operating
+        logic explicit: what the court can see, what it cannot see, what actions it can take, and
+        how those actions should change as belief in case quality, manipulation, and legal
+        viability changes over time.
+      </p>
+
+      <div class="page-actions">
+        <a class="button button-primary" href={frameworkHref}>Read the framework</a>
+        <a class="button button-secondary" href="#control">Jump to control</a>
+      </div>
+
+      <div class="note-strip">
+        <span>Stage-gated process</span>
+        <span>Hidden truth and hidden manipulation</span>
+        <span>Explicit control policy over time</span>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="section">
+      <div class="container article-shell">
+        <article class="quote-card">
+          <p>
+            An MDP gives the court a clean operating sketch. A POMDP is closer to the real
+            institution, because collusion, witness reliability, manipulation, and legal
+            sufficiency are never fully visible when decisions must be made.
+          </p>
+        </article>
+
+        <article class="article-card">
+          <p class="section-kicker">Why This Matters</p>
+          <h2>USACC is not just a website or a filing form. It is a control system.</h2>
+          <p>
+            Each case moves through a sequence of choices: whether to request more evidence,
+            whether to verify more aggressively, whether to escalate, whether to assign a fresh
+            panel, whether to release funding, whether to publish more, and whether to stop. Those
+            are control actions. The point of a formal model is to show which choices belong at
+            each stage, what information justifies them, and what kinds of failure the system is
+            trying to avoid.
+          </p>
+          <p>
+            The simplification is useful because it lets the project say, in public, that the
+            court is trying to maximize true-positive accountability while minimizing false
+            accusations, capture, delay, and reputational abuse. The complication is just as
+            important: in corruption work, the most important variables are hidden. That is why
+            POMDPs are often the more honest model.
+          </p>
+        </article>
+
+        <article class="article-card">
+          <p class="section-kicker">Core Tuple</p>
+          <h2>The court can be described as a staged decision process with hidden state.</h2>
+          <div class="table-wrap">
+            <table class="model-table">
+              <thead>
+                <tr>
+                  <th>Component</th>
+                  <th>Symbol</th>
+                  <th>Meaning in USACC</th>
+                </tr>
+              </thead>
+              <tbody>
+                {tupleRows.map((row) => (
+                  <tr>
+                    <td>{row.component}</td>
+                    <td><code>{row.symbol}</code></td>
+                    <td>{row.meaning}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </article>
+
+        <article class="article-card">
+          <p class="section-kicker">Simplified MDP</p>
+          <h2>A workable first model treats the court as a sequential policy problem.</h2>
+          <pre class="model-block"><code>{`States S = {
+  case_stage: [submission, validation, admission_review, trial_or_remedy],
+  evidence_strength: [low ... high],
+  corroboration_depth: [none ... multi_source],
+  manipulation_risk: [low ... high],
+  conflict_risk: [low ... high],
+  funding_status: [unfunded, escrowed, active, exhausted]
+}
+
+Actions A = {
+  request_more_evidence,
+  verify_identity,
+  normalize_record,
+  assign_reviewers,
+  hold_for_audit,
+  escalate_to_next_stage,
+  release_escrow,
+  reject_or_close
+}
+
+Transitions T(s' | s, a):
+  - new evidence arrives or fails to arrive
+  - contradictions, conflicts, or corroboration appear
+  - public support matures, stalls, or looks coordinated
+  - time and budget decay
+
+Reward R(s, a):
+  + surface credible corruption
+  + preserve due process
+  + reduce false positives
+  + reduce delay and cost
+  - manipulation, capture, retaliation, and reputational failure`}</code></pre>
+          <p>
+            This MDP view is already helpful for queue management, reviewer allocation, and
+            funding logic. It becomes inadequate when the court needs to act on the most important
+            question of all: whether the visible record is a trustworthy window into hidden
+            reality.
+          </p>
+        </article>
+
+        <article class="article-card">
+          <p class="section-kicker">Observability</p>
+          <h2>The most important anti-corruption variables are partly hidden.</h2>
+          <div class="card-grid two-up signal-grid">
+            {signals.map((item) => (
+              <section class="mini-card">
+                <h3>{item.title}</h3>
+                <p>{item.body}</p>
+              </section>
+            ))}
+          </div>
+        </article>
+
+        <article class="article-card">
+          <p class="section-kicker">POMDP</p>
+          <h2>The realistic model uses beliefs over hidden conditions, not just visible fields.</h2>
+          <p>
+            In a POMDP, the controller does not pretend to know the truth directly. Instead it
+            keeps a belief state: a probability distribution over hidden conditions such as genuine
+            collusion, strategic retaliation, evidentiary sufficiency, or active manipulation.
+            Each new filing detail, verification result, reviewer note, or contradiction updates
+            that belief.
+          </p>
+          <pre class="model-block"><code>{`belief'(theta) proportional to O(o | theta, a) * Sum[T(theta | theta_prev, a) * belief(theta_prev)]
+
+Translation:
+  After each observation, update the estimated probability that the case is
+  credible, mature enough, manipulated, or legally viable before choosing the
+  next process move.`}</code></pre>
+          <p>
+            That is the real leap from MDP to POMDP for USACC. The controller should not ask,
+            "What is the next stage on paper?" It should ask, "Given what we can observe, what is
+            the probability this matter is mature enough, clean enough, and strong enough for the
+            next action?"
+          </p>
+        </article>
+
+        <article class="article-card" id="control">
+          <p class="section-kicker">Control</p>
+          <h2>Control is exerted through explicit policy choices at each step.</h2>
+          <div class="loop-grid">
+            <section class="article-stage">
+              <p class="card-kicker">Step 1</p>
+              <h3>Observe</h3>
+              <p>Read the filing, identities, evidence, timing, support pattern, and reviewer output.</p>
+            </section>
+            <section class="article-stage">
+              <p class="card-kicker">Step 2</p>
+              <h3>Update belief</h3>
+              <p>Re-estimate credibility, manipulation risk, legal viability, and expected public-interest value.</p>
+            </section>
+            <section class="article-stage">
+              <p class="card-kicker">Step 3</p>
+              <h3>Choose an action</h3>
+              <p>Request more evidence, escalate, pause for audit, assign fresh reviewers, or close the matter.</p>
+            </section>
+            <section class="article-stage">
+              <p class="card-kicker">Step 4</p>
+              <h3>Measure outcome</h3>
+              <p>Track whether the action improved record quality, reduced risk, or exposed a bad filing.</p>
+            </section>
+          </div>
+
+          <pre class="model-block"><code>{`Example policy sketch:
+  if belief(manipulation) > alpha:
+    hold_for_audit
+
+  else if belief(evidence_sufficient) < beta:
+    request_more_evidence
+
+  else if belief(legal_viability) > gamma and conflict_risk is low:
+    escalate_to_next_stage
+
+  else:
+    keep_under_review_or_close`}</code></pre>
+        </article>
+
+        <article class="article-card">
+          <p class="section-kicker">Four Stages</p>
+          <h2>Each stage has different hidden variables and different control levers.</h2>
+          <div class="timeline-grid stage-grid">
+            {stageControls.map((stage) => (
+              <section class="timeline-card">
+                <p class="card-kicker">{stage.eyebrow}</p>
+                <h3>{stage.title}</h3>
+                <p><strong>Visible now:</strong> {stage.visible}</p>
+                <p><strong>Still hidden:</strong> {stage.hidden}</p>
+                <p><strong>Control focus:</strong> {stage.control}</p>
+              </section>
+            ))}
+          </div>
+        </article>
+
+        <article class="article-card">
+          <p class="section-kicker">Where Each Model Fits</p>
+          <h2>MDP is useful for operations. POMDP is better for judgment under uncertainty.</h2>
+          <div class="table-wrap">
+            <table class="model-table">
+              <thead>
+                <tr>
+                  <th>Question</th>
+                  <th>MDP</th>
+                  <th>POMDP</th>
+                </tr>
+              </thead>
+              <tbody>
+                {comparisonRows.map((row) => (
+                  <tr>
+                    <td>{row.question}</td>
+                    <td>{row.mdp}</td>
+                    <td>{row.pomdp}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </article>
+
+        <article class="article-card">
+          <p class="section-kicker">Build First</p>
+          <h2>The first practical systems should improve control, not automate verdicts.</h2>
+          <div class="card-grid thirds">
+            {applications.map((item) => (
+              <section class="info-card">
+                <h3>{item.title}</h3>
+                <p>{item.body}</p>
+              </section>
+            ))}
+          </div>
+        </article>
+
+        <article class="article-card">
+          <p class="section-kicker">Guardrail</p>
+          <h2>These models should steer process quality, not replace adjudication.</h2>
+          <p>
+            The strongest use of MDPs and POMDPs in USACC is operational: better routing, better
+            reviewer assignment, better evidence gating, better anomaly detection, and clearer
+            funding controls. They can help the court decide what to do next. They should not be
+            treated as an automatic truth machine.
+          </p>
+          <p>
+            Put plainly: the model can recommend "request corroboration," "send to audit," or
+            "this record is not mature enough yet." It should not declare guilt. In a project
+            built around legitimacy, transparency, and safeguards, that distinction is the whole
+            point.
+          </p>
+        </article>
+      </div>
+    </section>
+  </main>
+
+  <style>
+    .page-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.85rem;
+      margin-top: 1.6rem;
+    }
+
+    .note-strip {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.7rem;
+      margin-top: 1.4rem;
+    }
+
+    .note-strip span {
+      padding: 0.72rem 0.95rem;
+      border-radius: 999px;
+      border: 1px solid rgba(15, 76, 129, 0.14);
+      background: rgba(15, 76, 129, 0.08);
+      color: var(--secondary);
+      font-size: 0.88rem;
+      font-weight: 700;
+    }
+
+    .table-wrap {
+      margin-top: 1rem;
+      overflow-x: auto;
+    }
+
+    .model-table {
+      width: 100%;
+      min-width: 720px;
+      border-collapse: collapse;
+      border-spacing: 0;
+    }
+
+    .model-table th,
+    .model-table td {
+      padding: 0.95rem 1rem;
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+      vertical-align: top;
+      color: var(--text-soft);
+      font-size: 0.98rem;
+    }
+
+    .model-table th {
+      color: var(--text);
+      font-size: 0.88rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .model-table code {
+      color: var(--secondary);
+      font-weight: 700;
+      font-size: 0.92rem;
+    }
+
+    .model-block {
+      margin: 1rem 0 1.15rem;
+      padding: 1.2rem;
+      overflow-x: auto;
+      border-radius: var(--radius-sm);
+      border: 1px solid rgba(16, 32, 51, 0.12);
+      background:
+        linear-gradient(180deg, rgba(16, 32, 51, 0.98), rgba(20, 53, 86, 0.94));
+      color: #f8efe2;
+      font-size: 0.92rem;
+      line-height: 1.65;
+    }
+
+    .model-block code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono',
+        monospace;
+      white-space: pre;
+    }
+
+    .signal-grid,
+    .stage-grid {
+      margin-top: 1.1rem;
+    }
+
+    .loop-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+
+    .timeline-card strong {
+      color: var(--text);
+    }
+
+    @media (max-width: 960px) {
+      .loop-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 720px) {
+      .page-actions {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .loop-grid {
+        grid-template-columns: minmax(0, 1fr);
+      }
+    }
+  </style>
+</BaseLayout>

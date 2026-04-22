@@ -1,0 +1,806 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+const homeHref = import.meta.env.BASE_URL;
+const basePath = import.meta.env.BASE_URL.endsWith('/')
+  ? import.meta.env.BASE_URL
+  : `${import.meta.env.BASE_URL}/`;
+const frameworkHref = `${basePath}framework/`;
+const mdpHref = `${basePath}mdp/`;
+
+const flowSteps = [
+  'Public filing and signer-sponsor commitment',
+  'Intake, KYC, collision review, and admissibility',
+  'Case classification, priority, and control decisions',
+  'Pretrial and investigation flow under stage rotation',
+  'Trial-panel selection by public lottery from an eligible pool',
+  'Trial, deliberation, verdict, enforcement, and publication',
+  'Appeals, oversight, and feedback into future policy',
+];
+
+const stageRows = [
+  {
+    stage: '0',
+    name: 'Intake / KYC / signature',
+    servedBy: 'Software plus intake reviewers',
+    duration: 'Hours to days',
+    skip: 'Never',
+  },
+  {
+    stage: '1',
+    name: 'Complaint screening',
+    servedBy: 'One judge',
+    duration: '1 to 2 weeks',
+    skip: 'Only on auto-reject',
+  },
+  {
+    stage: '2',
+    name: 'Collision review',
+    servedBy: 'Three-judge panel',
+    duration: 'Days',
+    skip: 'If no collision hit',
+  },
+  {
+    stage: '3',
+    name: 'Preliminary investigation',
+    servedBy: 'One judge plus investigator staff',
+    duration: '2 to 8 weeks',
+    skip: 'Screen-tier exits',
+  },
+  {
+    stage: '4',
+    name: 'Pretrial motions',
+    servedBy: 'One judge',
+    duration: '2 to 6 weeks',
+    skip: 'Skipped on default',
+  },
+  {
+    stage: '5 and 6',
+    name: 'Trial, deliberation, verdict',
+    servedBy: '15-juror panel',
+    duration: '1 to 4 weeks plus 1 to 14 days',
+    skip: 'Never if reached',
+  },
+  {
+    stage: '7',
+    name: 'Appeal',
+    servedBy: 'Fresh five-judge panel',
+    duration: '4 to 12 weeks',
+    skip: 'Optional',
+  },
+  {
+    stage: '8',
+    name: 'Disbursement and publication',
+    servedBy: 'Software plus escrow custodian',
+    duration: 'Days',
+    skip: 'Never',
+  },
+];
+
+const stateCards = [
+  {
+    title: 'System state',
+    body:
+      'Queue lengths, mean wait by stage, judge pool size, active judges by stage, conflict-strike rate, appeal-overturn rate, and bias-audit score.',
+  },
+  {
+    title: 'Case state',
+    body:
+      'Tier, sponsor count, escrow balance, conduct archetype, defendant count, evidence complexity, case age, current stage, public salience, and prior expedite status.',
+  },
+  {
+    title: 'Judge state',
+    body:
+      'Credibility score, current caseload, stage-fit vector, tenure, and case-specific conflict vector.',
+  },
+  {
+    title: 'Belief layer',
+    body:
+      'The newer learning notes add Bayesian state on top of the observable queue: judge reliability, appeal risk, conflict probability, and case strength become distributions rather than single point estimates.',
+  },
+  {
+    title: 'Decision points',
+    body:
+      'The controller acts at arrivals, stage exits, staffing reviews, credibility refreshes, and tenure-cliff events rather than on every clock tick.',
+  },
+];
+
+const actionGroups = [
+  {
+    title: 'Admission and routing',
+    actions: [
+      'admit_standard',
+      'admit_expedited',
+      'admit_consolidated',
+      'admit_screening_only',
+      'hold_for_signature_ramp',
+      'reject_frivolous',
+    ],
+    body:
+      'These actions control whether a filing enters the normal flow, gets merged, stays in a lower tier, pauses for additional signatures, or gets rejected with appeal rights.',
+  },
+  {
+    title: 'Case priority',
+    actions: [
+      'priority_normal',
+      'priority_expedite',
+      'priority_standard_plus',
+      'defer_to_reserve',
+    ],
+    body:
+      'Priority is re-evaluated at each stage exit, allowing a case to accelerate if salience and completeness rise or to move to a slower track if it is blocked on evidence.',
+  },
+  {
+    title: 'Server-pool control',
+    actions: [
+      'pool_hold',
+      'pool_draft_external_n',
+      'pool_activate_reserve_n',
+      'pool_furlough_n',
+      'pool_terminate_bottom_10pct',
+      'stage_reassign_judge',
+    ],
+    body:
+      'This is the capacity lever: the policy can draft, activate, furlough, or certify judges, but only within the governance-approved pool band.',
+  },
+  {
+    title: 'Assignment rule selection',
+    actions: [
+      'assign_random_from_eligible',
+      'assign_weighted_by_cred',
+      'assign_reserved_for_archetype',
+      'reassign_due_to_conflict',
+    ],
+    body:
+      'The controller never picks an individual judge. It picks an assignment rule, and the actual assignment is then drawn randomly inside that rule with a verifiable seed.',
+  },
+  {
+    title: 'Trial panel settings',
+    actions: [
+      'panel_size_15',
+      'panel_size_21_high_tier',
+      'seq_partial',
+      'seq_full',
+    ],
+    body:
+      'These actions trade throughput against legitimacy by varying panel size and sequestration for especially sensitive, high-tier matters.',
+  },
+];
+
+const rewardRows = [
+  {
+    type: 'Per-case positive',
+    detail:
+      'Verdict confidence, precedent value, and strong downstream validation from appeals or peer review.',
+  },
+  {
+    type: 'Per-case negative',
+    detail:
+      'Wall-clock age, stipend spend, appeal spend, mid-case recusals, and bias incidents.',
+  },
+  {
+    type: 'Monthly system positive',
+    detail:
+      'Higher throughput and better stage completion under legitimacy constraints.',
+  },
+  {
+    type: 'Monthly system negative',
+    detail:
+      'Queue tails, irregular attrition, overturn clusters, suspicious assignment patterns, and composite capture-risk spikes.',
+  },
+];
+
+const learningLayers = [
+  {
+    title: 'Layer 1',
+    body:
+      'Hard constraints stay unlearned: rotation, lottery, supermajority, eligibility, escrow rules, and other structural guarantees.',
+  },
+  {
+    title: 'Layer 2',
+    body:
+      'Analytical control handles forecasting and operations: queueing baselines, urgency indices, and MPC-style staffing control.',
+  },
+  {
+    title: 'Layer 3',
+    body:
+      'Statistical models estimate hidden quantities: Bayesian judge reliability, survival models for delay, and causal estimators for policy effects.',
+  },
+  {
+    title: 'Layer 4',
+    body:
+      'Learning policies coordinate decisions over time: contextual bandits, conservative offline RL, and constrained RL for admissible action classes.',
+  },
+  {
+    title: 'Layer 5',
+    body:
+      'Adversarial and robust layers stress the system with capture attempts, coordinated actors, graph anomalies, and worst-case policy search.',
+  },
+  {
+    title: 'Layer 6',
+    body:
+      'Governance remains the final layer: reward-weight setting, action-space approval, fairness thresholds, rollout authorization, and public accountability.',
+  },
+];
+
+const assignmentStack = [
+  {
+    title: 'Hard eligibility filter',
+    body:
+      'Rule engine removes ineligible judges based on stage certification, prior service on the same case, conflicts, availability, and status.',
+  },
+  {
+    title: 'Optimization engine',
+    body:
+      'MILP, CP-SAT, min-cost flow, or matching builds an admissible candidate slate that balances capacity, credibility mix, archetype fit, and co-service concentration.',
+  },
+  {
+    title: 'Policy selector',
+    body:
+      'The MDP or bandit chooses which assignment rule to use, not which individual judge should win the seat.',
+  },
+  {
+    title: 'Public lottery',
+    body:
+      'The final seat is drawn by commit-reveal lottery from the candidate slate, preserving the line between logistics optimization and outcome legitimacy.',
+  },
+];
+
+const simModes = [
+  {
+    title: 'Platform-sim',
+    body:
+      'Runs the real platform binary end to end against synthetic accounts. Every actor has an account, notifications carry structured actions, and simulated agents hit real endpoints through safe adapters.',
+  },
+  {
+    title: 'Parallel DES',
+    body:
+      'Runs a second faster simulator with abstract entities and events only. It exists for policy sweeps, long-horizon capacity studies, ensemble stress tests, and large-scale RL training.',
+  },
+  {
+    title: 'Cross-validation',
+    body:
+      'The two simulators are supposed to agree on core metrics. When they diverge, the mismatch itself is treated as a bug signal or modeling gap.',
+  },
+  {
+    title: 'Shared contract',
+    body:
+      'Event taxonomy, metrics, state shape, and policy interface are shared so the model layer and software layer cannot drift silently apart.',
+  },
+];
+
+const fixedVsLearned = [
+  {
+    fixed: 'Rotation rule, 12-of-15 supermajority, commit-reveal lottery, scoping rule, and escrow disbursement rules',
+    learned: 'Action-value estimates for admission, priority, pool sizing, assignment-rule choice, and panel-size choice',
+  },
+  {
+    fixed: 'Reward weights and the certainty > swiftness > severity ordering',
+    learned: 'Feature weights and shared representations over cases, judges, and archetypes',
+  },
+  {
+    fixed: 'List of admissible actions',
+    learned: 'Service-time distributions per judge per stage',
+  },
+  {
+    fixed: 'Compensation schedule and pool size band outside 800 to 1,200',
+    learned: 'Expedite thresholds and archetype-level deterrence-value features',
+  },
+];
+
+const rolloutSteps = [
+  'Offline policy evaluation on logged decisions, using confidence intervals rather than a point estimate.',
+  'Matched historical replay in the 1:1 simulator.',
+  'Synthetic stress testing under heavier arrivals, lower capacity, and harder cases.',
+  'Adversarial attack suites against astroturfing, strategic timing, and capture attempts.',
+  'Fairness and disparate-treatment audit by archetype and defendant class.',
+  'Shadow deployment on live traffic with no execution authority.',
+  'Canary deployment on low-stakes screening surfaces first.',
+  'Staged rollout by action class with governance approval and one-step rollback.',
+];
+
+const guardrails = [
+  {
+    title: 'What the software does',
+    body:
+      'Runs intake, assignment, workflow timing, credibility updates, policy control, and oversight dashboards inside a deterministic or verifiably random system.',
+  },
+  {
+    title: 'What the software does not do',
+    body:
+      'It does not pick winners, rate evidence by itself, retune reward weights on the fly, or use credibility in unapproved ways.',
+  },
+  {
+    title: 'Where humans remain sovereign',
+    body:
+      'Panels decide verdicts and sentences. Governance sets structural rules, reward weights, admissible actions, compensation schedules, and policy rollout approval.',
+  },
+  {
+    title: 'Why this matters',
+    body:
+      'The controller is allowed to optimize logistics, speed, and capacity. It is not allowed to learn toward outcome-shaping under the banner of efficiency.',
+  },
+];
+
+const sentencingCards = [
+  {
+    title: 'Sentence structure',
+    body:
+      'The design centers custodial time plus personal financial liability, then adds clawback, professional sanctions, injunctions, disclosure, and referrals where appropriate.',
+  },
+  {
+    title: 'Recommendation, not command',
+    body:
+      'The controller may recommend a sentencing range and decomposition, but the panel remains sovereign and any departure must be explained on the public record.',
+  },
+  {
+    title: 'Recidivism reward',
+    body:
+      'The system tracks whether the defendant or close network re-offends after sentence final. That delayed signal flows back into the evaluation of the sentence-range model.',
+  },
+  {
+    title: 'General deterrence',
+    body:
+      'The long-run goal is lower corruption prevalence across archetypes. The docs explicitly prioritize certainty first, swiftness second, and severity third.',
+  },
+];
+---
+
+<BaseLayout
+  title="USACC | MDP2 Court-Flow Brief"
+  description="A deeper brief on the anti-corruption court's queueing-control MDP, grounded in the project docs and focused on stages, controls, rewards, simulation, governance, and deterrence."
+>
+  <header class="subpage-hero">
+    <div class="container">
+      <a class="back-link" href={homeHref}>Back to home</a>
+      <p class="section-kicker">Queueing Control Brief</p>
+      <h1>A more concrete MDP model for how the anti-corruption court would actually run.</h1>
+      <p class="lede narrow">
+        This page condenses the court-flow model in the project docs into a public-facing
+        explanation. The framing here is more specific than the earlier MDP/POMDP brief. The
+        court is treated first as a networked queuing system with explicit control surfaces, hard
+        structural constraints, delayed rewards, and a governed rollout process. Partial
+        observability still matters in the long horizon, but the operating core is a queueing
+        controller, not a black-box truth engine.
+      </p>
+
+      <div class="page-actions">
+        <a class="button button-primary" href={frameworkHref}>Read the framework</a>
+        <a class="button button-secondary" href={mdpHref}>Read the first MDP brief</a>
+      </div>
+
+      <div class="note-strip">
+        <span>Cases as jobs</span>
+        <span>Judges as servers</span>
+        <span>Policy controls stage boundaries</span>
+        <span>Governance fixes the hard rules</span>
+        <span>Learning stack, not just one algorithm</span>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="section">
+      <div class="container article-shell">
+        <article class="quote-card">
+          <p>
+            In the repo’s court-flow model, the MDP is not deciding corruption cases. It is the
+            controller for admission, routing, staffing, assignment rules, and queue pressure in a
+            multi-stage court whose legitimacy depends on fixed structural guarantees.
+          </p>
+        </article>
+
+        <article class="article-card">
+          <p class="section-kicker">Why This Model</p>
+          <h2>The docs model the court as a service network with long-horizon control decisions.</h2>
+          <p>
+            The court-flow notes describe the institution as a multi-stage queue. Cases are jobs.
+            Judges are servers. Each stage has its own queue, its own service-time profile, and
+            its own eligibility rules. Decisions at stage boundaries matter because they have
+            downstream effects on wait times, panel quality, legitimacy, stipend spend, appeal
+            risk, and ultimately deterrence.
+          </p>
+          <p>
+            That is why the docs reach for a queueing-control MDP rather than a generic scoring
+            model. The system is making sequential decisions about who gets admitted, who gets
+            expedited, how much capacity the pool needs, what assignment rule applies, and when a
+            case should move. Those are control actions with delayed consequences, which is exactly
+            the kind of problem an MDP is meant to formalize.
+          </p>
+        </article>
+
+        <article class="article-card">
+          <p class="section-kicker">Public Flow</p>
+          <h2>The newer diagram docs make the court flow easier to explain in plain English.</h2>
+          <ol class="article-list article-list-numbered">
+            {flowSteps.map((step) => (
+              <li>{step}</li>
+            ))}
+          </ol>
+          <p>
+            The important structural point in the diagram notes is that the main case flow stays
+            linear and auditable, while the learning loops feed only back into policy, credibility,
+            and simulation layers. They do not loop back into sponsorship or jury votes in a way
+            that would let the system silently rewrite the case itself.
+          </p>
+        </article>
+
+        <article class="article-card">
+          <p class="section-kicker">Topology</p>
+          <h2>The court is a staged network, not a single monolithic proceeding.</h2>
+          <div class="table-wrap">
+            <table class="model-table">
+              <thead>
+                <tr>
+                  <th>Stage</th>
+                  <th>Name</th>
+                  <th>Served by</th>
+                  <th>Typical duration</th>
+                  <th>Skippable?</th>
+                </tr>
+              </thead>
+              <tbody>
+                {stageRows.map((row) => (
+                  <tr>
+                    <td>{row.stage}</td>
+                    <td>{row.name}</td>
+                    <td>{row.servedBy}</td>
+                    <td>{row.duration}</td>
+                    <td>{row.skip}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <p>
+            The docs are explicit that stages draw independently from the broader judge pool and
+            enforce rotation as a hard constraint: someone who served at one stage on a case cannot
+            serve at another stage on that same case. That rule is not a soft penalty. It is part
+            of the action space boundary.
+          </p>
+        </article>
+
+        <article class="article-card">
+          <p class="section-kicker">State</p>
+          <h2>The controller acts on rich observable state at decision points rather than every tick.</h2>
+          <div class="card-grid two-up">
+            {stateCards.map((item) => (
+              <section class="mini-card">
+                <h3>{item.title}</h3>
+                <p>{item.body}</p>
+              </section>
+            ))}
+          </div>
+          <p>
+            One important nuance from the docs: the court is not modeled as fully blind. Much of
+            the operational state is directly measurable, especially queue pressure, case age,
+            pool composition, and appeal performance. The partial-observability problem shows up
+            more strongly in long-horizon reward attribution, deterrence estimation, and
+            enforcement realization than in basic case routing.
+          </p>
+        </article>
+
+        <article class="article-card">
+          <p class="section-kicker">Learning Stack</p>
+          <h2>The newer learning notes argue the court should use a layered stack, not just vanilla RL.</h2>
+          <div class="card-grid thirds">
+            {learningLayers.map((item) => (
+              <section class="info-card">
+                <h3>{item.title}</h3>
+                <p>{item.body}</p>
+              </section>
+            ))}
+          </div>
+          <p>
+            That update matters. The MDP remains the coordination layer for decisions over time,
+            but the broader stack now includes constrained RL, Bayesian estimation, robust
+            optimization, mechanism design, and explicit human approval. The court is treated as a
+            queueing system, a game among strategic actors, and a governance problem all at once.
+          </p>
+        </article>
+
+        <article class="article-card">
+          <p class="section-kicker">Controls</p>
+          <h2>The action space is explicit, limited, and grouped by what is being controlled.</h2>
+          <div class="card-grid">
+            {actionGroups.map((group) => (
+              <section class="info-card">
+                <h3>{group.title}</h3>
+                <p>{group.body}</p>
+                <ul class="article-list">
+                  {group.actions.map((action) => (
+                    <li><code>{action}</code></li>
+                  ))}
+                </ul>
+              </section>
+            ))}
+          </div>
+        </article>
+
+        <article class="article-card">
+          <p class="section-kicker">Expedite</p>
+          <h2>Expedite is a published SLA bundle, not a fuzzy “move this up” privilege.</h2>
+          <p>
+            The docs define expedite as a fixed package of shortened SLAs: faster intake,
+            compressed screening, a tighter investigation ceiling, a shorter motions window, and
+            prioritized panel seating. That matters because predictability is part of legitimacy.
+            The controller may choose expedited treatment, but it cannot invent a bespoke
+            accelerated path case by case.
+          </p>
+          <p>
+            Just as important, the docs list what expedite cannot change: the panel structure, the
+            supermajority threshold, the rotation rule, the conflict-disclosure requirements, and
+            the public docket. Those are structural guarantees outside the controller’s reach.
+          </p>
+        </article>
+
+        <article class="article-card">
+          <p class="section-kicker">Assignment Stack</p>
+          <h2>The new learning docs make assignment more precise: optimize the slate, then draw the seat.</h2>
+          <div class="card-grid two-up">
+            {assignmentStack.map((item) => (
+              <section class="mini-card">
+                <h3>{item.title}</h3>
+                <p>{item.body}</p>
+              </section>
+            ))}
+          </div>
+          <p>
+            This is one of the clearest architectural refinements in the new docs. Optimization is
+            welcome in the middle layer where the system builds a feasible and balanced candidate
+            slate. It is not the final chooser. The final seat remains random within a
+            conflict-cleared pool, which keeps the “AI runs logistics, not outcomes” boundary
+            intact.
+          </p>
+        </article>
+
+        <article class="article-card">
+          <p class="section-kicker">Reward</p>
+          <h2>The reward is reconstructed from outcomes, and governance sets the weights.</h2>
+          <div class="table-wrap">
+            <table class="model-table">
+              <thead>
+                <tr>
+                  <th>Reward surface</th>
+                  <th>Meaning</th>
+                </tr>
+              </thead>
+              <tbody>
+                {rewardRows.map((row) => (
+                  <tr>
+                    <td>{row.type}</td>
+                    <td>{row.detail}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <p>
+            This is one of the strongest themes in the docs: the model learns a policy given the
+            weights, but it does not learn the weights themselves. That separation is meant to stop
+            the system from simply rediscovering and reinforcing whatever past actors already
+            preferred.
+          </p>
+        </article>
+
+        <article class="article-card">
+          <p class="section-kicker">Staffing And Credibility</p>
+          <h2>The controller can shape capacity and assignment rules, but not compensation or verdict math.</h2>
+          <p>
+            The pool-sizing loop is framed like autoscaling with lead time. The controller can hold
+            the pool steady, draft external judges, activate reserve judges, furlough capacity, or
+            prepare for the three-year non-renewal cliff. But it operates inside a governance-set
+            band of roughly 800 to 1,200 judges. Outside that band, the decision belongs to
+            governance, not policy.
+          </p>
+          <p>
+            The docs also define a live credibility score for judges, but they constrain its use.
+            It can inform banded prestige signals, eligibility for high-tier review work, certain
+            assignment filters, and the cliff review. It cannot weight votes on a live panel, pick
+            outcomes, or become an unofficial strike system for parties.
+          </p>
+        </article>
+
+        <article class="article-card">
+          <p class="section-kicker">What Stays Fixed</p>
+          <h2>The design draws a hard line between structural guarantees and learned logistics.</h2>
+          <div class="table-wrap">
+            <table class="model-table">
+              <thead>
+                <tr>
+                  <th>Fixed by governance or charter</th>
+                  <th>Learned by the controller</th>
+                </tr>
+              </thead>
+              <tbody>
+                {fixedVsLearned.map((row) => (
+                  <tr>
+                    <td>{row.fixed}</td>
+                    <td>{row.learned}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <p>
+            That split is load-bearing. It is the repo’s answer to the legitimacy problem. The
+            policy can learn aggressively on logistics, timing, and throughput, while the things
+            most likely to be read as outcome-shaping stay outside the learning loop.
+          </p>
+        </article>
+
+        <article class="article-card">
+          <p class="section-kicker">Simulation And Software</p>
+          <h2>The sim docs now describe two simulators plus a live platform path.</h2>
+          <p>
+            The simulator is intentionally individual-level. Cases, judges, defendants, and
+            signer-sponsors are modeled as objects with history, network effects, conflicts,
+            tenure clocks, and stage events. That is how the system captures the things a simple
+            aggregate queue would miss: repeat co-service, conflict density, review eligibility,
+            and the birthday-problem dynamics of a rotating judge pool.
+          </p>
+          <div class="card-grid two-up sim-grid">
+            {simModes.map((item) => (
+              <section class="mini-card">
+                <h3>{item.title}</h3>
+                <p>{item.body}</p>
+              </section>
+            ))}
+          </div>
+          <p>
+            In production, the same structure turns into subsystems: intake and escrow, assignment
+            engine, workflow engine, voting system, credibility pipeline, policy controller, audit
+            dashboards, and a governance interface. The policy itself is versioned, hashed, and
+            pinned to every decision.
+          </p>
+        </article>
+
+        <article class="article-card">
+          <p class="section-kicker">Rollout Discipline</p>
+          <h2>A new policy does not touch live cases until it survives a long evaluation pipeline.</h2>
+          <ol class="article-list article-list-numbered">
+            {rolloutSteps.map((step) => (
+              <li>{step}</li>
+            ))}
+          </ol>
+          <p>
+            This is another place where the docs are unusually concrete. They do not describe a
+            continuously self-modifying court. Live trials run on a frozen policy. Online updates
+            are tightly bounded and limited to narrow calibration parameters, not general
+            per-decision gradient updates.
+          </p>
+        </article>
+
+        <article class="article-card">
+          <p class="section-kicker">Sentencing And Deterrence</p>
+          <h2>The longest-horizon part of the model closes the loop from verdict to less corruption.</h2>
+          <div class="card-grid two-up">
+            {sentencingCards.map((item) => (
+              <section class="mini-card">
+                <h3>{item.title}</h3>
+                <p>{item.body}</p>
+              </section>
+            ))}
+          </div>
+          <p>
+            The docs go further than ordinary court-ops modeling here. They explicitly say the
+            institution’s purpose is not just to produce correct verdicts but to reduce corruption
+            prevalence. That is why recidivism, realized enforcement, and archetype-level
+            deterrence are folded back into the long-run reward, with certainty weighted above
+            swiftness and severity.
+          </p>
+          <p>
+            Even so, the same safeguards remain: deterrence is not a verdict input, is not a
+            license to over-sentence an individual, and is not a reason to advance thin-evidence
+            cases. Individual proportionality constrains population-level optimization.
+          </p>
+        </article>
+
+        <article class="article-card">
+          <p class="section-kicker">Guardrails</p>
+          <h2>The page only makes sense if the boundary between logistics and judgment stays intact.</h2>
+          <div class="card-grid two-up">
+            {guardrails.map((item) => (
+              <section class="mini-card">
+                <h3>{item.title}</h3>
+                <p>{item.body}</p>
+              </section>
+            ))}
+          </div>
+        </article>
+
+        <article class="article-card">
+          <p class="section-kicker">Bottom Line</p>
+          <h2>The newer docs describe a court whose learning system is broader than the MDP but still tightly bounded.</h2>
+          <p>
+            The controller in this design is allowed to route, prioritize, size capacity, choose
+            assignment rules, and recommend sentencing ranges. It is not allowed to change the hard
+            rules, pick winners, or optimize directly for whatever verdict pattern looks best in
+            hindsight. That distinction is the core constitutional move of the design.
+          </p>
+          <p>
+            Read across the newer docs, the better summary is this: the MDP is the steering layer,
+            Bayesian inference provides depth perception, optimization builds feasible slates,
+            simulators test the world before deployment, and governance decides what any of those
+            tools are allowed to touch. The result is not an AI judge. It is a governed logistics
+            and learning system wrapped around a court that still reserves adjudication to panels
+            and structural rules.
+          </p>
+        </article>
+      </div>
+    </section>
+  </main>
+
+  <style>
+    .page-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.85rem;
+      margin-top: 1.6rem;
+    }
+
+    .note-strip {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.7rem;
+      margin-top: 1.4rem;
+    }
+
+    .note-strip span {
+      padding: 0.72rem 0.95rem;
+      border-radius: 999px;
+      border: 1px solid rgba(15, 76, 129, 0.14);
+      background: rgba(15, 76, 129, 0.08);
+      color: var(--secondary);
+      font-size: 0.88rem;
+      font-weight: 700;
+    }
+
+    .table-wrap {
+      margin-top: 1rem;
+      overflow-x: auto;
+    }
+
+    .model-table {
+      width: 100%;
+      min-width: 760px;
+      border-collapse: collapse;
+      border-spacing: 0;
+    }
+
+    .model-table th,
+    .model-table td {
+      padding: 0.95rem 1rem;
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+      vertical-align: top;
+      color: var(--text-soft);
+      font-size: 0.98rem;
+    }
+
+    .model-table th {
+      color: var(--text);
+      font-size: 0.88rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .info-card code {
+      color: var(--secondary);
+      font-weight: 700;
+      font-size: 0.92rem;
+    }
+
+    .sim-grid {
+      margin: 1rem 0 1.1rem;
+    }
+
+    @media (max-width: 720px) {
+      .page-actions {
+        flex-direction: column;
+        align-items: stretch;
+      }
+    }
+  </style>
+</BaseLayout>
