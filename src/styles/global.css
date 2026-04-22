@@ -614,6 +614,51 @@ li + li {
   background: rgba(255, 255, 255, 0.48);
 }
 
+.expand-stack {
+  display: grid;
+  gap: 0.85rem;
+  margin-top: 1.25rem;
+}
+
+.expand-card {
+  border-radius: var(--radius-sm);
+  border: 1px solid rgba(16, 32, 51, 0.1);
+  background: rgba(255, 255, 255, 0.56);
+  overflow: hidden;
+}
+
+.expand-card summary {
+  list-style: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem 1.15rem;
+  cursor: pointer;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.expand-card summary::-webkit-details-marker {
+  display: none;
+}
+
+.expand-card summary::after {
+  content: '+';
+  flex: 0 0 auto;
+  font-size: 1.35rem;
+  line-height: 1;
+  color: var(--secondary);
+}
+
+.expand-card[open] summary::after {
+  content: '−';
+}
+
+.expand-card p {
+  padding: 0 1.15rem 1.1rem;
+}
+
 .topbar-cta {
   min-width: fit-content;
 }

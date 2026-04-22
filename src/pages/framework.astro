@@ -5,7 +5,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 const corruptionDefinition = [
   'Entrusted power or controlled decision point: at least one actor is using a public, fiduciary, or institutional role that is supposed to be exercised on behalf of others.',
   'Collusion or coordinated exchange: corruption usually involves two or three actors, or a small ring, aligning benefits, protection, access, or favorable decisions rather than a lone bad act in isolation.',
-  'Externalized harm: the upside is concentrated among participants while the downside is pushed onto taxpayers, consumers, shareholders, workers, pension beneficiaries, ratepayers, voters, or other unconsenting third parties.',
+  'Diffuse externalized harm: the upside is concentrated among participants while the downside is pushed onto taxpayers, consumers, shareholders, workers, pension beneficiaries, ratepayers, voters, or other unconsenting third parties.',
 ];
 
 const safeguards = [
@@ -30,7 +30,7 @@ const homeHref = import.meta.env.BASE_URL;
 
 <BaseLayout
   title="USACC Framework"
-  description="A public brief translating the anti-corruption court concept into a framework centered on collusion, externalized harm, and strong procedural safeguards."
+  description="A public brief translating the anti-corruption court concept into a framework centered on collusion, diffuse externalized harm, and strong procedural safeguards."
 >
   <header class="subpage-hero">
     <div class="container">
@@ -40,8 +40,8 @@ const homeHref = import.meta.env.BASE_URL;
       <p class="lede narrow">
         This page condenses the provided whitepaper and draft plan into a clearer public-facing
         narrative. It preserves the main design logic while foregrounding the recurring pattern
-        of collusion plus externalized cost, and staying explicit that the project is still
-        exploratory and nonprofit-oriented.
+        of collusion plus diffuse externalized cost, and staying explicit that the project is
+        still exploratory and nonprofit-oriented.
       </p>
     </div>
   </header>
@@ -51,14 +51,14 @@ const homeHref = import.meta.env.BASE_URL;
       <div class="container article-shell">
         <article class="article-card">
           <p class="section-kicker">Why this exists</p>
-          <h2>Corruption often falls into a standing gap because the benefits are concentrated and the costs are externalized.</h2>
+          <h2>Corruption often falls into a standing gap because the benefits are concentrated and the negative effects are diffuse.</h2>
           <p>
             The materials behind USACC argue that many serious corruption patterns are not random
             single-actor abuses. They are collusive arrangements in which a small number of
             participants trade favors, protection, access, or money while the losses are shifted
             onto taxpayers, consumers, ratepayers, pension beneficiaries, workers, or voters.
-            The public is the victim, but the public rarely appears as a plaintiff in a form
-            conventional systems can process cleanly.
+            The harm is real, but it is diffuse enough that the public rarely appears as a
+            plaintiff in a form conventional systems can process cleanly.
           </p>
           <p>
             The concept therefore explores a parallel intake, review, and adjudication structure
@@ -87,6 +87,41 @@ const homeHref = import.meta.env.BASE_URL;
             risk, loss, or exclusion onto people outside the deal, including people who may not
             even realize they are the ones absorbing the cost.
           </p>
+        </article>
+
+        <article class="article-card">
+          <p class="section-kicker">Expandable Brief</p>
+          <h2>Why “diffuse negative effects” matters.</h2>
+          <div class="expand-stack">
+            <details class="expand-card" open>
+              <summary>Diffuse does not just mean “big.”</summary>
+              <p>
+                A harm can be enormous and still easy to litigate if one plaintiff clearly bears
+                it. Diffuse harm is different: the loss is scattered across many people, so each
+                person carries too little of the total burden to justify a full legal fight alone.
+              </p>
+            </details>
+
+            <details class="expand-card">
+              <summary>Pollution is the easiest analogy.</summary>
+              <p>
+                Pollution works because an actor can keep the upside of production while
+                offloading the cleanup cost, health burden, or environmental damage onto the
+                public. The court concept treats many corruption schemes as structurally similar:
+                a compact deal on one side, diffuse negative effects on the other.
+              </p>
+            </details>
+
+            <details class="expand-card">
+              <summary>Victims may be unknowing, indirect, or spread out.</summary>
+              <p>
+                The people paying the price may be ratepayers, taxpayers, pension beneficiaries,
+                workers, consumers, or residents who never saw the underlying arrangement and may
+                not know why they are worse off. That is exactly why ordinary standing often
+                breaks down.
+              </p>
+            </details>
+          </div>
         </article>
 
         <article class="article-card">
@@ -137,7 +172,8 @@ const homeHref = import.meta.env.BASE_URL;
             toward abstract review, it sketches a large standing judge pool, a 15-person panel,
             explicit conviction math, escrow-backed case funding, and a remedy model that stays
             realistic about what a nonprofit or court-adjacent body could actually enforce while
-            keeping the record focused on who coordinated, who benefited, and who bore the cost.
+            keeping the record focused on who coordinated, who benefited, and who absorbed the
+            diffuse cost.
           </p>
         </article>
 

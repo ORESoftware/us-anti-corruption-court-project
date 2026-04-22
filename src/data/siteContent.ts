@@ -2,12 +2,12 @@ export const designPillars = [
   {
     title: 'Universal accountability',
     body:
-      'The project is aimed at corruption claims involving public officials, executives, fiduciaries, and institutions when a small group colludes for advantage and the public, or another unconsenting class of victims, absorbs the downstream cost.',
+      'The project is aimed at corruption claims involving public officials, executives, fiduciaries, and institutions when a small group colludes for advantage and the public, or another unconsenting class of victims, absorbs the diffuse downstream cost.',
   },
   {
     title: 'Guaranteed review for credible cases',
     body:
-      'High-signal claims should not die quietly because they are politically inconvenient, procedurally expensive, or structured so the benefits are concentrated while the harms are too fragmented for any one victim to prosecute.',
+      'High-signal claims should not die quietly because they are politically inconvenient, procedurally expensive, or structured so the benefits are concentrated while the diffuse harms are too fragmented for any one victim to prosecute.',
   },
   {
     title: 'Accessible but filtered entry',
@@ -28,7 +28,7 @@ export const caseStages = [
     body:
       'A filer submits the allegation, the suspected colluding parties, the benefit flow, the externalized harm involved, and a defined conduct window. That record should make clear who benefited, who paid, and whether the harmed group includes diffuse or unknowing victims. A preliminary review panel tests whether the claim plausibly describes corruption and clears a minimum evidentiary floor.',
     bullets: [
-      'Structured complaint naming the parties, benefit, and harm package',
+      'Structured complaint naming the parties, benefit, and diffuse-harm package',
       'Low-barrier entry with anti-spam financial friction',
       'Reviewer-set escalation thresholds based on severity and risk',
     ],
@@ -72,7 +72,7 @@ export const platformTracks = [
   {
     title: 'Civic intake',
     body:
-      'A public-facing platform for structured filings, evidence intake, case scoping, signer verification, and explicit mapping of who colluded, who benefited, and who paid the cost.',
+      'A public-facing platform for structured filings, evidence intake, case scoping, signer verification, and explicit mapping of who colluded, who benefited, and which diffuse costs were pushed outward.',
   },
   {
     title: 'Escrow and financial controls',
@@ -95,7 +95,7 @@ export const pilotFeatures = [
   {
     title: 'Collusion and externality scope',
     body:
-      'The concept focuses on schemes where a small cluster of actors coordinates private upside while the losses are pushed onto the public rather than a single plaintiff with a clean damages claim. The basic logic is similar to pollution: actors keep the upside while offloading the pain onto others.',
+      'The concept focuses on schemes where a small cluster of actors coordinates private upside while diffuse negative effects are pushed onto the public rather than a single plaintiff with a clean damages claim. The basic logic is similar to pollution: actors keep the upside while offloading the pain onto others.',
   },
   {
     title: 'Tiered filing mechanics',
